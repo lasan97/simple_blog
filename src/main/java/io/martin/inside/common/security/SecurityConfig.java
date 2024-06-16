@@ -46,6 +46,8 @@ import org.springframework.security.oauth2.server.authorization.web.authenticati
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2ClientCredentialsAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.time.Duration;
@@ -99,7 +101,7 @@ public class SecurityConfig {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(opaqueToken -> opaqueToken.introspector(new CustomOpaqueTokenIntrospector(oAuth2AuthorizationService))))
-				.addFilterBefore(new XSSFilter(), UsernamePasswordAuthenticationFilter.class)
+				.addFilterAfter(new XSSFilter(), AuthorizationFilter.class)
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
 
 		return http.build();

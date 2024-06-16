@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +23,12 @@ public class Account {
 	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 
-	@NotBlank
+	@NotBlank(message="V00001001")
+	@Size(max=10, message="V00001002")
 	private String name;
 
-	@NotBlank
+	@NotBlank(message="V00001003")
+	@Size(max=100, message="V00001004")
 	private String password;
 
 	public Account(String name, String password) {

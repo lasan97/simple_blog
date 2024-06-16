@@ -19,5 +19,9 @@ spring:
         default_batch_fetch_size: 100
         format_sql: true
     show-sql: true
-
+logging:
+  level:
+    org:
+      hibernate:
+        type: trace
 
