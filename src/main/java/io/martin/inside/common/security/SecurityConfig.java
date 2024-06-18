@@ -1,7 +1,6 @@
 package io.martin.inside.common.security;
 
 import io.martin.inside.common.security.converter.CustomAccessTokenRequestConverter;
-import io.martin.inside.common.security.filtr.XSSFilter;
 import io.martin.inside.common.security.introspector.CustomOpaqueTokenIntrospector;
 import io.martin.inside.common.security.provider.CustomUsernamePasswordAuthenticationProvider;
 import io.martin.inside.common.security.user.CustomUserService;
@@ -46,9 +45,6 @@ import org.springframework.security.oauth2.server.authorization.web.authenticati
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2ClientCredentialsAuthenticationConverter;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -101,8 +97,7 @@ public class SecurityConfig {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(opaqueToken -> opaqueToken.introspector(new CustomOpaqueTokenIntrospector(oAuth2AuthorizationService))))
-				.addFilterAfter(new XSSFilter(), AuthorizationFilter.class)
-				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
 
 		return http.build();
 	}

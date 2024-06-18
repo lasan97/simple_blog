@@ -3,9 +3,12 @@ package io.martin.inside.common.security.filtr;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
+import org.apache.commons.text.StringEscapeUtils;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @since       2024.06.17
@@ -20,10 +23,7 @@ public class XSSFilter implements Filter {
 	}
 
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
-
-		// TODO - 변경해야함
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		chain.doFilter(new XSSRequestWrapper((HttpServletRequest) request), response);
 	}
 
@@ -33,8 +33,61 @@ public class XSSFilter implements Filter {
 
 	private static class XSSRequestWrapper extends HttpServletRequestWrapper {
 
+		private String body;
+		private static final PolicyFactory POLICY = Sanitizers.FORMATTING
+				.and(Sanitizers.STYLES)
+				.and(Sanitizers.LINKS)
+				.and(Sanitizers.IMAGES)
+				.and(Sanitizers.TABLES)
+				.and(Sanitizers.BLOCKS);
+
 		public XSSRequestWrapper(HttpServletRequest servletRequest) {
 			super(servletRequest);
+		}
+
+		@Override
+		public ServletInputStream getInputStream() throws IOException {
+
+			body = sanitizeRequestBody(super.getInputStream());
+
+			final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
+			return new ServletInputStream() {
+				@Override
+				public int read() throws IOException {
+					return byteArrayInputStream.read();
+				}
+
+				@Override
+				public boolean isFinished() {
+					return byteArrayInputStream.available() == 0;
+				}
+
+				@Override
+				public boolean isReady() {
+					return true;
+				}
+
+				@Override
+				public void setReadListener(ReadListener readListener) {
+				}
+			};
+		}
+
+		private String sanitizeRequestBody(ServletInputStream servletInputStream) throws IOException {
+			StringBuilder stringBuilder = new StringBuilder();
+			try  {
+				BufferedReader bufferedReader = servletInputStream != null ? new BufferedReader(new InputStreamReader(servletInputStream)) : null;
+				if (bufferedReader != null) {
+					char[] charBuffer = new char[128];
+					int bytesRead;
+					while ((bytesRead = bufferedReader.read(charBuffer)) != -1) {
+						stringBuilder.append(charBuffer, 0, bytesRead);
+					}
+				}
+			} catch (IOException ex) {
+				throw ex;
+			}
+			return stripXSS(stringBuilder.toString());
 		}
 
 		@Override
@@ -66,17 +119,11 @@ public class XSSFilter implements Filter {
 		}
 
 		private String stripXSS(String value) {
-			if (value != null) {
-
-				// Avoid null characters
-				value = value.replaceAll("\0", "");
-
-				// Remove all sections that match a pattern
-				value = value.replaceAll("(?i)<script.*?>.*?</script.*?>", ""); // script tags
-				value = value.replaceAll("(?i)<.*?javascript:.*?>.*?</.*?>", ""); // javascript tags
-				value = value.replaceAll("(?i)<.*?\\s+on.*?>.*?</.*?>", ""); // onload/onerror/on* attributes
+			if(value == null) {
+				return null;
 			}
-			return value;
+			String passingValue = StringEscapeUtils.unescapeHtml4(value);
+			return StringEscapeUtils.unescapeHtml4(POLICY.sanitize(passingValue));
 		}
 	}
 }
