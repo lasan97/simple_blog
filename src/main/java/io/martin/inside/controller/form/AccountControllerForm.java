@@ -1,7 +1,7 @@
 package io.martin.inside.controller.form;
 
 import io.martin.inside.domain.account.form.AccountServiceForm;
-import lombok.Data;
+import lombok.*;
 
 /**
  * @since       2024.06.17
@@ -10,7 +10,7 @@ import lombok.Data;
  **********************************************************************************************************************/
 public class AccountControllerForm {
 
-	public class Response {
+	public static class Response {
 
 		@Data
 		public static class PublicInfoAccount {

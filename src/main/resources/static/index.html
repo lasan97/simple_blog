@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="title">hello world</div>
+<button onclick="getTest()">Get Test 버튼</button>
+<button onclick="postTest()">Post Test 버튼</button>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+    const getTest = () => {
+        axios.get("http://localhost:8080/xss?content="+"<img src='i' onerror=\"alert('test');\">")
+            .then(result => document.querySelector("#title").innerHTML = result.data);
+    };
+
+    const postTest = () => {
+        axios.post("http://localhost:8080/xss", {
+            "content": "<img src='i' onerror=\"alert('test');\">"
+        }).then((result) => document.querySelector("#title").innerHTML = result.data);
+    };
+</script>
+</body>
+</html>

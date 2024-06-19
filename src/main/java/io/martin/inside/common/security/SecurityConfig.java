@@ -97,7 +97,7 @@ public class SecurityConfig {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.oauth2ResourceServer(oauth2 -> oauth2.opaqueToken(opaqueToken -> opaqueToken.introspector(new CustomOpaqueTokenIntrospector(oAuth2AuthorizationService))))
-				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
 
 		return http.build();
 	}

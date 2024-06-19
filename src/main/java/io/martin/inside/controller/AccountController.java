@@ -5,8 +5,7 @@ import io.martin.inside.controller.form.AccountControllerForm.Response;
 import io.martin.inside.domain.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @since       2024.06.16
